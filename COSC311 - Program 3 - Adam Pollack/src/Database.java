@@ -156,7 +156,7 @@ public class Database {
             addIt();
         }
         else {
-            System.out.print("Enter first and last name: ");
+            System.out.print("Enter first sname: ");
             fName = scnr.nextLine();
             System.out.print("Enter last name: ");
             lName = scnr.nextLine();
