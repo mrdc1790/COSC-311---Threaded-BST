@@ -4,10 +4,10 @@
 import java.util.*;
 
 public class COSC311_Driver {
-    static Database d = new Database();
     public static void main(String[] args) {
         int response;
         Scanner keyboard = new Scanner(System.in);
+        Database d = new Database(keyboard);
         do
         {
             System.out.println(" 1 Add a new student");
@@ -22,7 +22,14 @@ public class COSC311_Driver {
             System.out.println(" ");
             System.out.println(" 0 End");
 
-            response=keyboard.nextInt();
+            if (!keyboard.hasNextLine()) return;
+            try {
+                response = Integer.parseInt(keyboard.nextLine().trim());
+            } catch (NumberFormatException error) {
+                response = -1;
+                System.out.println("Enter a menu number from 0 to 9.");
+                continue;
+            }
 
             switch (response)
             {

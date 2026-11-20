@@ -9,7 +9,14 @@ public class Database {
     public int numElems;
 
     //assignment of all the structures of other classes (IndexLinkedList[firstNameIndex, lastNameIndex, IDIndex], DatabaseRecord)
-    public Database(){
+    private final Scanner scnr;
+
+    public Database() {
+        this(new Scanner(System.in));
+    }
+
+    public Database(Scanner scnr) {
+        this.scnr = scnr;
         myDB = new DatabaseRecord[200];
         deletedIndex = new DeletedIndex(200);
         firstNameIndex = new BST_OrderedIndex();
@@ -44,7 +51,6 @@ public class Database {
 
     //used to delete an entry
     public int deleteRecord(String idDeleted){
-        idDeleted = verifyAndFormatID(idDeleted);
         int indexOfDeletedRecord;
         try {
             //indexOfDeletedRecord = this.find(idDeleted)
@@ -72,7 +78,9 @@ public class Database {
     //used by search to compare values to what is being searched
     public int find(String IDtoBeFound){
         if (IDIndex.isEmpty()) return -1;
-        BST_IndexRecord target = IDIndex.find(IDtoBeFound);
+        String id = formatID(IDtoBeFound);
+        if (id == null) return -1;
+        BST_IndexRecord target = IDIndex.find(id);
         if (target == null) return -1;
         else return target.getWhere();
     }
@@ -81,17 +89,14 @@ public class Database {
     public void insert (String IDtoBeEntered, String firstName, String lastName){
         firstName = firstName.trim();
         lastName = lastName.trim();
-        IDtoBeEntered = IDtoBeEntered.trim();
-        IDtoBeEntered = verifyAndFormatID(IDtoBeEntered);
-        while (search(IDtoBeEntered)) {
-            Scanner scnr = new Scanner(System.in);
-            if (find(IDtoBeEntered) == -1){
-                IDtoBeEntered = scnr.nextLine();
-            } else {
-                System.out.print("The ID "+ IDtoBeEntered + " is already in use.\n");
-                break;
-            }
-            System.out.println();
+        IDtoBeEntered = formatID(IDtoBeEntered);
+        if (IDtoBeEntered == null) {
+            System.out.println("Invalid ID. Must be numeric.");
+            return;
+        }
+        if (search(IDtoBeEntered)) {
+            System.out.println("The ID " + IDtoBeEntered + " is already in use.");
+            return;
         }
         DatabaseRecord record = new DatabaseRecord(IDtoBeEntered, firstName, lastName);
         int indexToInsertAt;
@@ -147,29 +152,30 @@ public class Database {
 
     //method used in driver by user to add an entry
     public void addIt(){
-        String fName, lName, cID;
-        Scanner scnr = new Scanner(System.in);
         System.out.print("Enter a unique ID number to add: ");
-        cID = scnr.nextLine();
-        if (find(cID) != -1){
-            System.out.print("The ID " + cID + " is already in use, please try again.\n");
-            addIt();
+        if (!scnr.hasNextLine()) return;
+        String id = formatID(scnr.nextLine());
+        if (id == null) {
+            System.out.println("Invalid ID. Must be numeric.");
+            return;
         }
-        else {
-            System.out.print("Enter first sname: ");
-            fName = scnr.nextLine();
-            System.out.print("Enter last name: ");
-            lName = scnr.nextLine();
-            insert(cID,fName,lName);
+        if (find(id) != -1) {
+            System.out.println("The ID " + id + " is already in use.");
+            return;
         }
+        System.out.print("Enter first name: ");
+        if (!scnr.hasNextLine()) return;
+        String firstName = scnr.nextLine();
+        System.out.print("Enter last name: ");
+        if (!scnr.hasNextLine()) return;
+        insert(id, firstName, scnr.nextLine());
     }
 
-    //method used in driver to delete a record
     public void deleteIt(){
         String deleteID;
-        Scanner scnr = new Scanner(System.in);
         System.out.print("Please enter the ID to be deleted: ");
-        deleteID = scnr.next();
+        if (!scnr.hasNextLine()) return;
+        deleteID = scnr.nextLine().trim();
         //messy
         int x = deleteRecord(deleteID);
         if (x !=-1) System.out.println("Record "+deleteID+ " has been deleted.\n");
@@ -179,9 +185,9 @@ public class Database {
     //method used in driver to find a record
     public void findIt(){
         String findID;
-        Scanner scnr = new Scanner(System.in);
         System.out.print("Please enter the ID to be found: ");
-        findID = scnr.next();
+        if (!scnr.hasNextLine()) return;
+        findID = scnr.nextLine().trim();
         int indexOfRecord = find(findID);
         if (indexOfRecord == -1){
             System.out.println("The ID you entered does not exist.");
@@ -190,21 +196,11 @@ public class Database {
         }
     }
 
-    private static String verifyAndFormatID(String cID){
-        boolean tempID;
-        do{
-            try{
-                cID = cID.trim();
-                cID = String.format("%05d",Integer.parseInt(cID));
-                tempID = false;
-            } catch (Exception e){
-                System.out.println("Invalid ID. Must be numeric");
-                System.out.print("Please re-enter an ID: ");
-                Scanner scnr = new Scanner(System.in);
-                cID = scnr.nextLine();
-                tempID = true;
-            }
-        } while (tempID);
-        return cID;
+    private static String formatID(String value) {
+        try {
+            return String.format(java.util.Locale.ROOT, "%05d", Integer.parseInt(value.trim()));
+        } catch (NumberFormatException error) {
+            return null;
+        }
     }
 }
