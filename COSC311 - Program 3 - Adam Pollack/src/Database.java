@@ -53,8 +53,10 @@ public class Database {
     public int deleteRecord(String idDeleted){
         int indexOfDeletedRecord;
         try {
-            //indexOfDeletedRecord = this.find(idDeleted)
-            indexOfDeletedRecord = this.find(idDeleted);
+            indexOfDeletedRecord = find(idDeleted);
+            if (indexOfDeletedRecord < 0) {
+                return -1;
+            }
             deletedIndex.addIndex(indexOfDeletedRecord);
             DatabaseRecord databaseRecordToDelete = myDB[indexOfDeletedRecord];
             IDIndex.deleteRecord(databaseRecordToDelete.getID());
@@ -64,7 +66,6 @@ public class Database {
         } catch (Exception e) {
             indexOfDeletedRecord = -1;
         }
-        System.out.println(indexOfDeletedRecord);
         return indexOfDeletedRecord;
     }
 

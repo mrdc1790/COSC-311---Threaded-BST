@@ -10,3 +10,6 @@ records. Run it from the program directory, which contains dataset.txt:
 
 Choose a numbered menu option to work with records. Use numeric IDs. Enter 0
 to exit.
+
+The deletion exercise is incomplete. Deleting a record whose index node has
+children can leave the record in the index.
